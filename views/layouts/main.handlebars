@@ -3,15 +3,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Vidjot</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<title>Vidjot</title>
+	<link rel="stylesheet" type="text/css" href="/css/style.css">
 </head>
 <body>
 	<!-- how to include partials into the code-->
 	{{> _navbar}}
 
 	<div class="container">
+		<!--to show the flashes on screen -->
+		{{> _msg}}
 		<!-- to show the content of handlebars on the page -->
+		{{> _errors}}
 		{{{body}}}
 	</div>
 

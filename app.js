@@ -1,22 +1,31 @@
 const express = require('express');
+const path = require('path');
 const exphbs = require('express-handlebars');
+const methodOverride = require('method-override')
+const flash = require('connect-flash');
+const session = require('express-session');
+const passport = require('passport');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
 const app = express();
 
+//Load routes
+const ideas = require('./routes/ideas');
+const users = require('./routes/users');
+
+//Passport config
+require('./config/passport')(passport);
+
 //Map global promise - get rid of warning
 mongoose.Promise  = global.Promise;
 //connect to mongoose, to check whether the connection is susccessful
-mongoose.connect('mongodb://localhost/vidjot-dev', {
+mongoose.connect('mongodb://localhost:27017/vidjot-dev', {
 	useNewUrlParser: true
 })
 .then(() => console.log('MongoDB connected...'))
 .catch(err => console.log(err));
 
-//Load Idea model
-require('./models/Idea');
-const Idea = mongoose.model('ideas');
 
 app.engine('handlebars', exphbs({
 	defaultLayout: 'main'
@@ -38,6 +47,31 @@ app.use(bodyParser.urlencoded({
 	extended: false
 }));
 app.use(bodyParser.json());
+
+
+//static folder
+app.use(express.static(path.join(__dirname, 'public')));
+
+//method override middleware
+app.use(methodOverride('_method'));
+
+//express session middleware
+app.use(session({
+	secret: 'secret',
+	resave: true,
+	saveUninitialized: true
+}));
+
+app.use(flash());
+
+//global variables
+app.use(function(req, res, next){
+	res.locals.success_msg = req.flash('success_msg');
+	res.locals.error_msg = req.flash('error_msg');
+	res.locals.error = req.flash('error');
+	next();
+});
+
 //index route
 
 app.get('/', (req, res) => {
@@ -57,45 +91,11 @@ app.get('/about', (req, res) => {
 	res.render('about');
 });
 
-//Add idea form
-app.get('/ideas/add', (req, res) => {
-	res.render('ideas/add');
-});
 
-//Process Form
-app.post('/ideas', (req, res) => {
-	/*console.log(req.body);
-	res.send('ok');
-	*/
+//use routes
+app.use('/ideas', ideas);
+app.use('/users', users);
 
-	let errors = [];
-	if(!req.body.title){
-		errors.push({text: 'please add a title'});
-	}
-	if(!req.body.details){
-		errors.push({text: 'please add some details'});
-	}
-
-	if(errors.length > 0){
-		res.render('ideas/add', {
-			errors: errors,
-			title: req.body.title,
-			details: req.body.details
-		});
-	}
-	else{
-		//res.send('passed');
-		const newUser = {
-			title: req.body.title,
-			details: req.body.details
-		}
-		new Idea(newUser)
-			.save()
-			.then(idea => {
-				res.redirect('/ideas');
-			})
-	}
-});
 
 const port = 3000;
 
