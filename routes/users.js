@@ -24,7 +24,7 @@ router.post('/login', (req, res, next) => {
 		successRedirect: '/ideas',
 		failureRedirect: '/users/login',
 		failureFlash: true
-	}) (req, res, next);
+	})(req, res, next);
 
 });
 
@@ -86,4 +86,11 @@ router.post('/register', (req, res) => {
 		});
 	}
 });
+
+//logout user
+router.get('/logout', (req, res) => {
+	req.logout();
+	req.flash('success_msg', 'you are logged out');
+	res.redirect('/users/login');
+})
 module.exports = router;

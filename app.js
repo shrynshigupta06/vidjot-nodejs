@@ -17,10 +17,15 @@ const users = require('./routes/users');
 //Passport config
 require('./config/passport')(passport);
 
+//Db config
+const db = require('./config/database');
+
 //Map global promise - get rid of warning
 mongoose.Promise  = global.Promise;
+
+//'mongodb://localhost:27017/vidjot-dev'
 //connect to mongoose, to check whether the connection is susccessful
-mongoose.connect('mongodb://localhost:27017/vidjot-dev', {
+mongoose.connect(db.mongoURI, {
 	useNewUrlParser: true
 })
 .then(() => console.log('MongoDB connected...'))
@@ -62,6 +67,10 @@ app.use(session({
 	saveUninitialized: true
 }));
 
+//apssport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(flash());
 
 //global variables
@@ -69,6 +78,7 @@ app.use(function(req, res, next){
 	res.locals.success_msg = req.flash('success_msg');
 	res.locals.error_msg = req.flash('error_msg');
 	res.locals.error = req.flash('error');
+	res.locals.user = req.user || null;
 	next();
 });
 
@@ -96,8 +106,8 @@ app.get('/about', (req, res) => {
 app.use('/ideas', ideas);
 app.use('/users', users);
 
-
-const port = 3000;
+//to deploy it on heroku
+const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
 	console.log(`Server started on port ${port}`);

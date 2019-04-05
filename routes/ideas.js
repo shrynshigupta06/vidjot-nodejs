@@ -3,6 +3,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+//curly brace is used for destructuring
+const {ensureAuthenticated} = require('../helpers/auth');
 
 //Load Idea model
 require('../models/Idea');
@@ -10,8 +12,8 @@ const Idea = mongoose.model('ideas');
 
 
 //idea index page
-router.get('/', (req, res) => {
-	Idea.find({})
+router.get('/', ensureAuthenticated, (req, res) => {
+	Idea.find({user: req.user.id})
 	.sort({date:'desc'})
 	.then(ideas => {
 		res.render('ideas/index', {
@@ -21,24 +23,31 @@ router.get('/', (req, res) => {
 });
 
 //Add idea form
-router.get('/add', (req, res) => {
+//we want to protect this route so add ensureAuthenticated
+router.get('/add', ensureAuthenticated, (req, res) => {
 	res.render('ideas/add');
 });
 
 //Edit idea form
-router.get('/edit/:id', (req, res) => {
+router.get('/edit/:id', ensureAuthenticated, (req, res) => {
 	Idea.findOne({
 		_id: req.params.id
 	})
 	.then(idea => {
-		res.render('ideas/edit', {
-			idea: idea
-		});
+		if(idea.user != req.user.id){
+			req.flash('error_msg', 'Not Auhorised');
+			res.redirect('/ideas');
+		}
+		else{
+			res.render('ideas/edit', {
+				idea: idea
+			});
+		}
 	});
 });
 
 //Process Form
-router.post('/', (req, res) => {
+router.post('/', ensureAuthenticated, (req, res) => {
 	/*console.log(req.body);
 	res.send('ok');
 	*/ 
@@ -62,7 +71,8 @@ router.post('/', (req, res) => {
 		//res.send('passed');
 		const newUser = {
 			title: req.body.title,
-			details: req.body.details
+			details: req.body.details,
+			user: req.user.id
 		}
 		new Idea(newUser)
 			.save()
@@ -74,7 +84,7 @@ router.post('/', (req, res) => {
 });
 
 //edit form process
-router.put('/:id', (req, res) => {
+router.put('/:id', ensureAuthenticated, (req, res) => {
 	Idea.findOne({
 		_id: req.params.id
 	})
@@ -92,7 +102,7 @@ router.put('/:id', (req, res) => {
 });
 
 //Delete idea
-router.delete('/:id', (req, res) => {
+router.delete('/:id', ensureAuthenticated, (req, res) => {
 	//res.send('delete');
 	Idea.remove({_id: req.params.id})
 	.then(() => {
