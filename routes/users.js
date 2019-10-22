@@ -39,7 +39,7 @@ router.post('/register', (req, res) => {
 		errors.push({text: 'Passwords do not match'});
 	}
 	if(req.body.password.length < 4){
-		errors.push({text: 'Password must be at least 4 characters'});
+		errors.push({text: 'Password must be at least 4 char long'});
 	}
  	if(errors.length > 0){
 		res.render('users/register', {
@@ -55,7 +55,7 @@ router.post('/register', (req, res) => {
 		User.findOne({email: req.body.email})
 		.then(user => {
 			if(user){
-				req.flash('error_msg', 'Email already registered');
+				req.flash('error_msg', 'Email is already registered');
 				res.redirect('/users/register');
 			}
 			else{
@@ -72,7 +72,7 @@ router.post('/register', (req, res) => {
 						newUser.password = hash;
 						newUser.save()
 						.then(user => {
-							req.flash('success_msg', 'You are now registered and can login now');
+							req.flash('success_msg', 'You are now registered and can login now!');
 							res.redirect('/users/login');
 						})
 						.catch(err => {
@@ -90,7 +90,7 @@ router.post('/register', (req, res) => {
 //logout user
 router.get('/logout', (req, res) => {
 	req.logout();
-	req.flash('success_msg', 'you are logged out');
+	req.flash('success_msg', 'you are logged out of the session');
 	res.redirect('/users/login');
 })
 module.exports = router;

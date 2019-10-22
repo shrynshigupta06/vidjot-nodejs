@@ -11,8 +11,11 @@ const IdeaSchema = new Schema({
 	},
 	details:{
 		type: String,
-		required: true
 	},
+	category:{
+		type: String, 
+		required: true
+	}
 	user:{
 		type: String,
 		required: true

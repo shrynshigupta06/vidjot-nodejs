@@ -35,7 +35,7 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
 	})
 	.then(idea => {
 		if(idea.user != req.user.id){
-			req.flash('error_msg', 'Not Auhorised');
+			req.flash('error_msg', 'you are not Auhorised');
 			res.redirect('/ideas');
 		}
 		else{
@@ -48,16 +48,13 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
 
 //Process Form
 router.post('/', ensureAuthenticated, (req, res) => {
-	/*console.log(req.body);
-	res.send('ok');
-	*/ 
 
 	let errors = [];
 	if(!req.body.title){
 		errors.push({text: 'please add a title'});
 	}
 	if(!req.body.details){
-		errors.push({text: 'please add some details'});
+		errors.push({text: 'please add some details...details are empty'});
 	}
 
 	if(errors.length > 0){
@@ -77,7 +74,7 @@ router.post('/', ensureAuthenticated, (req, res) => {
 		new Idea(newUser)
 			.save()
 			.then(idea => {
-				req.flash('success_msg', 'Video Idea added!');
+				req.flash('success_msg', 'Video Idea added successfully!');
 				res.redirect('/ideas');
 			})
 	}
@@ -95,7 +92,7 @@ router.put('/:id', ensureAuthenticated, (req, res) => {
 
 		idea.save()
 		.then(idea => {
-			req.flash('success_msg', 'Video Idea updated!');
+			req.flash('success_msg', 'Video Idea updated successfully!');
 			res.redirect('/ideas');
 		})
 	})
@@ -106,7 +103,7 @@ router.delete('/:id', ensureAuthenticated, (req, res) => {
 	//res.send('delete');
 	Idea.remove({_id: req.params.id})
 	.then(() => {
-		req.flash('success_msg', 'Video Idea removed'); 
+		req.flash('success_msg', 'Video Idea removed done'); 
 		res.redirect('/ideas');
 	});
 });
