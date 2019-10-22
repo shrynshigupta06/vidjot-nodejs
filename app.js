@@ -1,3 +1,4 @@
+//including libraries
 const express = require('express');
 const path = require('path');
 const exphbs = require('express-handlebars');
@@ -7,10 +8,10 @@ const session = require('express-session');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-
+const dotenv = require('dotenv');
 const app = express();
 
-//Load routes
+//path towards routes
 const ideas = require('./routes/ideas');
 const users = require('./routes/users');
 
@@ -20,11 +21,8 @@ require('./config/passport')(passport);
 //Db config
 const db = require('./config/database');
 
-//Map global promise - get rid of warning
 mongoose.Promise  = global.Promise;
 
-//'mongodb://localhost:27017/vidjot-dev'
-//connect to mongoose, to check whether the connection is susccessful
 mongoose.connect(db.mongoURI, {
 	useNewUrlParser: true
 })
@@ -37,17 +35,8 @@ app.engine('handlebars', exphbs({
 }));
 app.set('view engine', 'handlebars');
 
-/*
-//how middle ware works
-app.use(function (req, res, next){
-	//console.log(Date.now());
-	req.name = "shreeyanshi";
-	//this will access throughout the program and will reflect in the console
-	next();
-});
-*/
 
-//BodyParser middlewares. It allows to access names provided in the body sections as request
+//BodyParser middlewares.
 app.use(bodyParser.urlencoded({
 	extended: false
 }));
@@ -85,11 +74,6 @@ app.use(function(req, res, next){
 //index route
 
 app.get('/', (req, res) => {
-	/*
-	//will be used in password authentication
-	console.log(req.name);
-	//res.send(req.name);
-	*/
 
 	const title = 'Welcome';
 	res.render('index', {
